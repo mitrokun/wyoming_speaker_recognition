@@ -1,6 +1,7 @@
 
 services:
-  vosk:
+  wyoming-rapidfuzz-proxy:
+    container_name: wyoming-rapidfuzz-proxy
     image: wyoming-rapidfuzz-proxy:0.0.1
     environment:
       - URI=tcp://0.0.0.0:10310
