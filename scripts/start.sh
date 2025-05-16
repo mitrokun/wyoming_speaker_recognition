@@ -14,7 +14,7 @@ fi
 
 echo STT_URI                =   ${STT_URI}    
 echo URI                    =   ${URI}
-echo CORRECTION_THRESHOLD   =   ${CORRECT_SENTENCES}
+echo CORRECTION_THRESHOLD   =   ${CORRECTION_THRESHOLD}
 echo LANGUAGE               =   ${LANGUAGE}
 echo DEBUG_LOGGING          =   ${DEBUG_LOGGING}
 echo LIMIT_SENTENCES        =   ${LIMIT_SENTENCES}
