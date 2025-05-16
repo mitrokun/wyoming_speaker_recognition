@@ -1,0 +1,19 @@
+
+services:
+  vosk:
+    image: wyoming-rapidfuzz-proxy:0.0.1
+    environment:
+      - URI=tcp://0.0.0.0:10310
+      - STT_URI=tcp://192.168.4.5:10300
+      - CORRECTION_THRESHOLD=15
+      - LANGUAGE=en
+      - DEBUG_LOGGING=TRUE
+      - LIMIT_SENTENCES=TRUE
+      - ALLOW_UNKNOWN=FALSE
+    volumes:
+      - /folder/with/en.yaml:/data
+    ports:
+      - 10310:10310
+    restart: unless-stopped
+        
+

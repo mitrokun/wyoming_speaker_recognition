@@ -1,0 +1,5 @@
+hassil==2.2.3
+PyYAML==6.0.2
+RapidFuzz==3.13.0
+unicode-rbnf==2.3.0
+wyoming==1.6.0
