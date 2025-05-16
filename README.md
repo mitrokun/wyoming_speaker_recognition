@@ -1,6 +1,30 @@
 # Wyoming RapidFuzz Proxy
 A wyoming proxy to add Vosk Rapid Fuzz sentence correction to any wyoming Speech-To-Text service
 
+#  What Does Wyoming RapiddFuzz Proxy Do and How Does It Work?
+
+Wyoming RapiddFuzz Proxy makes it possible to use the sentence correction feature from Wyoming Vosk with any speech-to-text service that is compatible with the Wyoming protocol.
+
+To achieve this, Wyoming RapiddFuzz Proxy acts as a middle layer between Home Assistant and a Wyoming-compatible speech-to-text (STT) service. Its main job is to intercept transcribed voice commands and apply sentence correction before passing them back to Home Assistant.
+
+This allows any Wyoming-compatible STT service (for example, Whisper or Microsoft STT) to benefit from the correction mechanism that would otherwise be exclusive to Wyoming Vosk.
+
+## Communication Flow (Step by Step)
+The proxy exposes itself as a standard Wyoming STT service, which means it can be added to Home Assistant just like any other Wyoming integration.
+
+When Home Assistant sends audio data to the proxy (for example, when a user speaks a command),
+→ the proxy forwards this audio to a real STT service, such as Wyoming Whisper or Wyoming Microsoft.
+
+Once the STT service returns the transcribed text,
+→ the proxy intercepts it before it reaches Home Assistant.
+
+The proxy then applies sentence correction using the logic provided by Wyoming Vosk.
+
+Finally, the corrected text is sent to Home Assistant, as if it came directly from the original STT service.
+
+## Transparent Operation
+The design goal of the proxy is to be as transparent as possible. This means Home Assistant does not need any special configuration beyond setting up a Wyoming integration as usual. From the perspective of Home Assistant, it is simply communicating with a regular STT service—while under the hood, the proxy enhances the transcription with sentence correction.
+
 # Thanks to
 * This project is mainly a wrapper around the sentence correction using RapidFuzz from Wyoming Vosk (https://github.com/rhasspy/wyoming-vosk).The correction code was written by synesthesiam. Thanks to him.
 * I’m not a developer, so I’ve taken parts and pieces to start this project. One of these is the scripts to containerize Vosk from https://github.com/dekiesel/wyoming-vosk-standalone.
