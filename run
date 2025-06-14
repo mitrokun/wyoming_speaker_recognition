@@ -1,0 +1,21 @@
+#!/bin/bash
+
+set -e
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+# Формируем путь к исполняемому файлу Python внутри нашего venv
+PYTHON_EXEC="$SCRIPT_DIR/venv/bin/python"
+
+echo "Using Python from: $PYTHON_EXEC"
+echo "Project directory: $SCRIPT_DIR"
+
+#set host and port for wyoming stt server
+$PYTHON_EXEC -m wyoming_asr_proxy \
+    --stt-uri tcp://192.168.1.111:10300 \
+    --name-person1 "Alice" \
+    --reference-audio-person1 "samples/alice.wav" \
+    --name-person2 "Bob" \
+    --reference-audio-person2 "samples/bob.wav" \
+    --similarity-threshold 0.75 \
+    --uri tcp://0.0.0.0:10301

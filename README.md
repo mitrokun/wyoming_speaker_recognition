@@ -1,75 +1,31 @@
-# Wyoming RapidFuzz Proxy
-A wyoming proxy to add Vosk Rapid Fuzz sentence correction to any wyoming Speech-To-Text service
+# Wyoming speaker recognition
+This project integrates into the existing STT pipeline, creates embeddings based on samples of your voices, and compares them with your voice for each request. If the condition is met, the system tags the recognized text with '[it's Alice voice]' (using your name) for LLM context. This action is performed once per "session." Since Wyoming does not transmit a conversation ID, we reset the pointer if 5 minutes have passed since the last request (the default value for AssistSatellite).
 
-#  What Does Wyoming RapiddFuzz Proxy Do and How Does It Work?
+There is also a condition for a minimum of 5 words (configurable) in a phrase to allow the execution of regular commands.
 
-Wyoming RapiddFuzz Proxy makes it possible to use the sentence correction feature from Wyoming Vosk with any speech-to-text service that is compatible with the Wyoming protocol.
+It’s worth noting that this is not a serious project but a proof of concept.
 
-To achieve this, Wyoming RapiddFuzz Proxy acts as a middle layer between Home Assistant and a Wyoming-compatible speech-to-text (STT) service. Its main job is to intercept transcribed voice commands and apply sentence correction before passing them back to Home Assistant.
+## Install
+```
+git clone https://github.com/mitrokun/wyoming_speaker_recognition.git
+cd wyoming_speaker_recognition
+python3 -m venv venv
+source venv/bin/activate
+pip install resemblyzer
+```
+or if you don't need extra dependencies for nvidia
+```
+pip install torch==2.3.1+cpu torchvision==0.18.1+cpu torchaudio==2.3.1+cpu -f https://download.pytorch.org/whl/torch_stable.html
+pip install setuptools wyoming typing
+pip install resemblyzer --no-deps
+pip install webrtcvad librosa
+deactivate
+chmod +x run
+```
+## Run
 
-This allows any Wyoming-compatible STT service (for example, Whisper or Microsoft STT) to benefit from the correction mechanism that would otherwise be exclusive to Wyoming Vosk.
+I recommend recording a 10-15 second sample using HA debug mode. Place the files in the sample folder. Configure the run script and launch it. Creating embeddings may take some time on low-end hardware, but this is a one-time operation.
+```
+./run
 
-## Communication Flow (Step by Step)
-The proxy exposes itself as a standard Wyoming STT service, which means it can be added to Home Assistant just like any other Wyoming integration.
-
-When Home Assistant sends audio data to the proxy (for example, when a user speaks a command),
-→ the proxy forwards this audio to a real STT service, such as Wyoming Whisper or Wyoming Microsoft.
-
-Once the STT service returns the transcribed text,
-→ the proxy intercepts it before it reaches Home Assistant.
-
-The proxy then applies sentence correction using the logic provided by Wyoming Vosk.
-
-Finally, the corrected text is sent to Home Assistant, as if it came directly from the original STT service.
-
-## Transparent Operation
-The design goal of the proxy is to be as transparent as possible. This means Home Assistant does not need any special configuration beyond setting up a Wyoming integration as usual. From the perspective of Home Assistant, it is simply communicating with a regular STT service—while under the hood, the proxy enhances the transcription with sentence correction.
-
-# Thanks to
-* This project is mainly a wrapper around the sentence correction using RapidFuzz from Wyoming Vosk (https://github.com/rhasspy/wyoming-vosk).The correction code was written by synesthesiam. Thanks to him.
-* I’m not a developer, so I’ve taken parts and pieces to start this project. One of these is the scripts to containerize Vosk from https://github.com/dekiesel/wyoming-vosk-standalone.
-
-# Prerequisites
-* A working Wyoming Speech to Text like https://github.com/rhasspy/wyoming-faster-whisper or https://github.com/hugobloem/wyoming-microsoft-stt
-* docker
-* docker compose (or another way of starting the container)
-
-# How to use
-* clone the repo `git clone https://github.com/Cheerpipe/wyoming_rapidfuzz_proxy`
-* change into the repo: `cd wyoming_rapidfuzz_proxy`
-* build the container: `bash scripts/build.sh`
-* Edit `docker-compose.yaml`
-* Create a file with the sentences that will be used for correction. You can start with one of the examples from the Vosk repository (https://github.com/rhasspy/wyoming-vosk/tree/master/examples). Or if you are already a Vosk user, directly use your current sentence file.
-* run the container: `docker compose up` or `docker compose up -d` for detached execution.
-
-# Volumes
-"By default, Wyoming RapidFuzz Proxy uses a single default mount point to access the statement definition file."
-
-| Path | Description | Example |
-|-----------|-----------|-----------|
-| /data| This directory must contain a file with the statements that will be used for the correction process. The file should be named <language>.yaml. You can create your own, use an existing file compatible with Wyoming Vosk, or use one of the example files available in the Wyoming Vosk repository (https://github.com/rhasspy/wyoming-vosk/tree/master/examples). | ./sentences |
-
-
-# Docker-compose environment variables
-
-| Variable | Description | Example |
-|-----------|-----------|-----------|
-| URI| URL that defines the host and listening port of the proxy. The port you set in this parameter is the port you must use in Home Assistant and expose in the container if you are using bridge mode networking.| tcp://0.0.0.0:10310|
-| STT_URI| Connection URI to the Wyoming Speech to Text service you want to use.| tcp://192.168.1.100:10300|
-| CORRECTION_THRESHOLD | Sets the maximum Levenshtein distance allowed between an audio transcription and its closest correction. If the difference is within the threshold, the correction is applied; otherwise, the original sentence is kept. Higher thresholds allow more corrections but may alter open-ended phrases. A value of 0 disables all corrections. See **c** for more info | 15|
-| LANGUAGE| Language code of the language you want to use. There must be a sentence definition file in the /data folder named “[language].yaml” (e.g., “/data/en.yaml”). See **Volumes** for more info| en|
-| LIMIT_SENTENCES| Refer to: https://github.com/rhasspy/wyoming-vosk| FALSE|
-| ALLOW_UNKNOWN | Refer to: https://github.com/rhasspy/wyoming-vosk | FALSE|
-| DEBUG_LOGGING| Print debug log on container console output| FALSE|
-
-# Understanding CORRECTION_THRESHOLD
-This directory must contain a file with the statements that will be used for the correction process. The file should be named <language>.yaml. You can create your own, use an existing file compatible with Wyoming Vosk, or use one of the example files available in the Wyoming Vosk repository (https://github.com/rhasspy/wyoming-vosk/tree/master/examples).
-
-The correction process uses the Levenshtein distance between the transcribed phrase from a voice command and the predefined phrases in the sentecnes file (E.g: In the en.yaml).
-Simply put, the Levenshtein distance between two texts is the minimum number of single-character operations (insertions, deletions, or substitutions) needed to transform one text into the other.
-If the two texts are identical, the distance is zero. Otherwise, the more different the texts are, the greater the distance will be.
-
-The environment variable CORRECTION_THRESHOLD determines the maximum allowable distance between two phrases for the sentence correction to be applied.
-If this value is set to 0, sentence correction will not be applied at all. On the other hand, if the value is too high, all phrases will be corrected, blocking any command that is not in the list of predefined phrases.
-
-As a recommendation, this parameter should be set to a value that allows at most one or two full words to be changed in a sentence. This should be based on the typical length of area or entity names used in the phrases.
+```
