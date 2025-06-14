@@ -1,5 +1,5 @@
 # Wyoming speaker recognition
-This project integrates into the existing STT pipeline, creates embeddings based on samples of your voices, and compares them with your voice for each request. If the condition is met, the system tags the recognized text with '[it's Alice voice]' (using your name) for LLM context. This action is performed once per "session." Since Wyoming does not transmit a conversation ID, we reset the pointer if 5 minutes have passed since the last request (the default value for AssistSatellite).
+This project integrates into the existing STT pipeline, creates embeddings based on samples of your voices, and compares them with your voice for each request ( [Resemblyzer library](https://github.com/resemble-ai/Resemblyzer ) is used). If the condition is met, the system tags the recognized text with '[it's Alice voice]' (using your name) for LLM context. This action is performed once per "session." Since Wyoming does not transmit a conversation ID, we reset the pointer if 5 minutes have passed since the last request (the default value for AssistSatellite).
 
 There is also a condition for a minimum of 5 words (configurable) in a phrase to allow the execution of regular commands.
 
