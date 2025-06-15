@@ -4,7 +4,6 @@ set -e
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
-# Формируем путь к исполняемому файлу Python внутри нашего venv
 PYTHON_EXEC="$SCRIPT_DIR/venv/bin/python"
 
 echo "Using Python from: $PYTHON_EXEC"
