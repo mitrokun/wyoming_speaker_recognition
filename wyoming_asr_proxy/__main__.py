@@ -25,7 +25,6 @@ async def main() -> None:
         "--stt-uri", default="tcp://127.0.0.1:10300", help="unix:// or tcp://"
     )
     
-    # --- ИЗМЕНЕНИЕ: Аргументы для путей к аудиофайлам ---
     parser.add_argument(
         "--reference-audio-person1",
         required=True,
@@ -37,16 +36,15 @@ async def main() -> None:
         help="Path to the reference .wav file for Person 2.",
     )
 
-    # --- НОВЫЕ АРГУМЕНТЫ: Задаем имена для каждого спикера ---
     parser.add_argument(
         "--name-person1",
         required=True,
-        help="Name for Person 1 (e.g., 'Митя').",
+        help="Name for Person 1 (e.g., 'Alice').",
     )
     parser.add_argument(
         "--name-person2",
         required=True,
-        help="Name for Person 2 (e.g., 'Аня').",
+        help="Name for Person 2 (e.g., 'Bob').",
     )
     
     parser.add_argument(
@@ -105,14 +103,12 @@ async def main() -> None:
         ],
     )
 
-    # --- ИЗМЕНЕНИЕ: Ключами словаря теперь являются имена из командной строки ---
     reference_audios = {
         cli_args.name_person1: cli_args.reference_audio_person1,
         cli_args.name_person2: cli_args.reference_audio_person2,
     }
 
     try:
-        # Теперь verifier будет инициализирован с именами "Митя" и "Аня" (или любыми другими)
         verifier = MultiSpeakerVerifier(reference_audios)
     except Exception as e:
         _LOGGER.critical(f"Failed to initialize voice verifier: {e}")
