@@ -19,3 +19,4 @@ $PYTHON_EXEC -m wyoming_asr_proxy \
     --reference-audio-person2 "samples/bob.wav" \
     --similarity-threshold 0.75 \
     --uri tcp://0.0.0.0:10301
+#    --min-words 5
